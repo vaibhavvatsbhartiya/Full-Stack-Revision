@@ -3016,9 +3016,1828 @@ Key features:
 - **Compatibility** - Works on all major platforms
 - **Open source** - Free and widely supported
 
-### 72. What are the common Git commands that you use?
+### 72. What are the common Git commands that you use? (continued)
 Common Git commands:
 
 **Basic commands**:
 ```bash
 # Initialize a repository
+git init
+
+# Clone a repository
+git clone https://github.com/username/repository.git
+
+# Check status of working directory
+git status
+
+# Add files to staging area
+git add filename.js           # Add specific file
+git add .                     # Add all files
+
+# Commit changes
+git commit -m "Your message"
+
+# View commit history
+git log
+git log --oneline --graph     # Compact history with branch visualization
+```
+
+**Branch operations**:
+```bash
+# List branches
+git branch
+
+# Create new branch
+git branch feature-name
+
+# Switch to a branch
+git checkout branch-name
+git switch branch-name        # Modern alternative
+
+# Create and switch to new branch
+git checkout -b feature-name
+git switch -c feature-name    # Modern alternative
+
+# Delete branch
+git branch -d branch-name     # Safe delete (won't delete unmerged changes)
+git branch -D branch-name     # Force delete
+```
+
+**Remote operations**:
+```bash
+# Add remote repository
+git remote add origin https://github.com/username/repo.git
+
+# List remote repositories
+git remote -v
+
+# Fetch changes from remote
+git fetch origin
+
+# Pull changes (fetch + merge)
+git pull origin main
+
+# Push changes to remote
+git push origin main
+```
+
+**Merge operations**:
+```bash
+# Merge branch into current branch
+git merge feature-branch
+
+# Abort merge
+git merge --abort
+```
+
+**Stash operations**:
+```bash
+# Save uncommitted changes temporarily
+git stash
+
+# List stashes
+git stash list
+
+# Apply stashed changes
+git stash apply
+git stash pop            # Apply and remove stash
+```
+
+### 73. What is the difference between `git merge` and `git rebase`? When would you use each one?
+**Git Merge**:
+- Creates a new "merge commit" that combines changes from both branches
+- Preserves complete history and chronological order
+- Non-destructive operation (original branches remain unchanged)
+
+```bash
+git checkout main
+git merge feature-branch
+```
+
+**Git Rebase**:
+- Moves the entire feature branch to begin on the tip of the main branch
+- Results in a linear project history
+- Rewrites project history by creating new commits
+
+```bash
+git checkout feature-branch
+git rebase main
+```
+
+**When to use merge**:
+- For integrating completed features into the main branch
+- When you want to preserve the complete history
+- For public/shared branches that others are working on
+- When branch history context is important
+
+**When to use rebase**:
+- To keep feature branch updated with latest main changes
+- For cleaning up local commits before sharing
+- When you want a clean, linear project history
+- For private/personal branches that aren't shared
+
+### 74. How do you resolve merge conflicts in Git?
+Merge conflicts occur when Git can't automatically resolve differences between branches. Here's how to resolve them:
+
+1. **Git will indicate which files have conflicts**:
+```bash
+git merge feature-branch
+# CONFLICT (content): Merge conflict in file.js
+```
+
+2. **Open the conflicted files in your editor**. You'll see:
+```
+<<<<<<< HEAD
+// Current branch code
+=======
+// Incoming branch code
+>>>>>>> feature-branch
+```
+
+3. **Manually edit the file** to resolve conflicts by:
+   - Keeping your changes (`<<<<<<< HEAD` to `=======`)
+   - Keeping the incoming changes (`=======` to `>>>>>>> feature-branch`)
+   - Keeping both or modifying as needed
+   - Removing the conflict markers
+
+4. **Add the resolved files to the staging area**:
+```bash
+git add file.js
+```
+
+5. **Complete the merge by committing**:
+```bash
+git commit -m "Resolve merge conflicts"
+```
+
+**Tools to help with merge conflicts**:
+- Visual tools: VS Code, GitKraken, SourceTree
+- Command line tools: `git mergetool`
+- Settings to reduce conflicts: `git config --global merge.conflictstyle diff3`
+
+### 75. How do you revert a commit in Git?
+There are multiple ways to revert commits in Git:
+
+1. **`git revert`** - Creates a new commit that undoes changes (safest option):
+```bash
+# Revert the most recent commit
+git revert HEAD
+
+# Revert a specific commit
+git revert abc123
+```
+
+2. **`git reset`** - Moves the branch pointer backwards (rewrites history):
+```bash
+# Soft reset - keeps changes staged
+git reset --soft HEAD~1
+
+# Mixed reset - keeps changes unstaged (default)
+git reset HEAD~1
+
+# Hard reset - discards changes (DANGEROUS)
+git reset --hard HEAD~1
+```
+
+3. **`git checkout`** - Restore specific files from a previous commit:
+```bash
+# Restore a file to its state in a previous commit
+git checkout abc123 -- file.js
+```
+
+4. **Amend most recent commit** - Replace the last commit:
+```bash
+# Make changes, then
+git add .
+git commit --amend -m "New commit message"
+```
+
+### 76. What is a `.gitignore` file, and how do you use it?
+A `.gitignore` file specifies files and directories that Git should ignore (not track). It helps keep your repository clean from temporary files, build artifacts, and sensitive information.
+
+Example `.gitignore` file:
+```
+# Node.js dependencies
+node_modules/
+npm-debug.log
+
+# Build outputs
+dist/
+build/
+*.min.js
+
+# Environment variables
+.env
+.env.local
+
+# Operating system files
+.DS_Store
+Thumbs.db
+
+# Editor directories and files
+.idea/
+.vscode/
+*.swp
+*.swo
+
+# Logs
+logs/
+*.log
+
+# Testing
+coverage/
+```
+
+Rules for `.gitignore` files:
+- Each line is a pattern
+- `#` starts a comment
+- Blank lines are ignored
+- `/pattern` specifies directory
+- `pattern/` specifies all directories with that name
+- `!pattern` negates a pattern (include previously excluded files)
+- `*` matches any character sequence except `/`
+- `?` matches any single character except `/`
+- `**` matches any number of directories
+
+### 77. What is the "staging area" in Git?
+The staging area (or index) is a middle ground between your working directory and the repository. It's where you prepare changes before committing them.
+
+Key aspects of the staging area:
+- Allows you to selectively commit parts of your changes
+- Lets you review what will be included in the next commit
+- Helps organize related changes into cohesive commits
+
+Working with the staging area:
+```bash
+# Add files to staging area
+git add file.js           # Add specific file
+git add directory/        # Add all files in directory
+git add -p                # Interactively choose parts of files to stage
+
+# Remove files from staging area (keeps file changes)
+git restore --staged file.js  # Modern syntax
+git reset HEAD file.js        # Traditional syntax
+
+# View differences
+git diff                  # Between working directory and staging
+git diff --staged         # Between staging and last commit
+
+# Commit staged changes
+git commit -m "Your message"
+```
+
+### 78. What is Gitflow? Describe the branching strategy.
+Gitflow is a branching model that defines a structured workflow for managing features, releases, and hotfixes.
+
+Main branches:
+- **main/master**: Production-ready code
+- **develop**: Latest delivered development changes
+
+Supporting branches:
+- **feature branches**: For new features (`feature/user-authentication`)
+- **release branches**: Prepare for production release (`release/1.2.0`)
+- **hotfix branches**: Emergency fixes for production (`hotfix/login-bug`)
+
+Gitflow workflow:
+1. **Feature development**:
+   - Branch off from `develop`: `git checkout -b feature/new-feature develop`
+   - Work on the feature
+   - Merge back to `develop`: 
+     ```bash
+     git checkout develop
+     git merge --no-ff feature/new-feature
+     git branch -d feature/new-feature
+     ```
+
+2. **Release preparation**:
+   - Branch off from `develop`: `git checkout -b release/1.2.0 develop`
+   - Minor bug fixes and release preparation
+   - Finish release:
+     ```bash
+     git checkout main
+     git merge --no-ff release/1.2.0
+     git tag -a v1.2.0
+     git checkout develop
+     git merge --no-ff release/1.2.0
+     git branch -d release/1.2.0
+     ```
+
+3. **Hotfix**:
+   - Branch off from `main`: `git checkout -b hotfix/critical-bug main`
+   - Fix the bug
+   - Finish hotfix:
+     ```bash
+     git checkout main
+     git merge --no-ff hotfix/critical-bug
+     git tag -a v1.2.1
+     git checkout develop
+     git merge --no-ff hotfix/critical-bug
+     git branch -d hotfix/critical-bug
+     ```
+
+### 79. How do you use Git hooks to automate tasks?
+Git hooks are scripts that run automatically when certain Git events occur. They help enforce quality standards and automate workflows.
+
+Common Git hooks:
+- **pre-commit**: Runs before a commit is created
+- **prepare-commit-msg**: Runs before commit message editor is launched
+- **commit-msg**: Validates commit messages
+- **post-commit**: Runs after a commit is completed
+- **pre-push**: Runs before pushing to a remote
+- **post-merge**: Runs after a merge is completed
+
+Steps to implement a Git hook:
+1. Navigate to `.git/hooks/` directory in your repository
+2. Create a new file with the hook name (without extension) or rename the sample
+3. Make the file executable: `chmod +x .git/hooks/pre-commit`
+4. Write your script
+
+Example pre-commit hook for linting:
+```bash
+#!/bin/sh
+
+# Run ESLint on staged JS files
+FILES=$(git diff --cached --name-only --diff-filter=ACM | grep '\.js$')
+if [ -n "$FILES" ]; then
+  echo "Running ESLint on staged files..."
+  npx eslint $FILES
+  if [ $? -ne 0 ]; then
+    echo "ESLint failed. Please fix the issues before committing."
+    exit 1
+  fi
+fi
+
+exit 0
+```
+
+**Team-wide hooks with Husky**:
+```bash
+# Install Husky
+npm install husky --save-dev
+
+# In package.json
+{
+  "husky": {
+    "hooks": {
+      "pre-commit": "npm run lint",
+      "commit-msg": "commitlint -E HUSKY_GIT_PARAMS"
+    }
+  }
+}
+```
+
+### 80. What are submodules and subtrees in Git? When would you use them?
+**Git Submodules**:
+Include another Git repository within your repository as a subdirectory while keeping the commits separate.
+
+```bash
+# Add a submodule
+git submodule add https://github.com/username/library.git libs/library
+
+# Clone a repository with submodules
+git clone --recursive https://github.com/username/main-project.git
+
+# Update submodules
+git submodule update --init --recursive
+
+# Pull changes in all submodules
+git submodule foreach git pull origin main
+```
+
+**Git Subtrees**:
+Merge another repository's history into a subdirectory of your repository.
+
+```bash
+# Add a subtree
+git subtree add --prefix=libs/library https://github.com/username/library.git main --squash
+
+# Update a subtree
+git subtree pull --prefix=libs/library https://github.com/username/library.git main --squash
+
+# Push changes to subtree's remote
+git subtree push --prefix=libs/library https://github.com/username/library.git main
+```
+
+**When to use submodules**:
+- When you need to use the exact same code in multiple projects
+- When you want to clearly separate the external code
+- When contributors shouldn't modify the included code
+- When you need precise versioning of the dependency
+
+**When to use subtrees**:
+- When you want to include the external code as part of your project
+- When contributors should be able to modify the included code
+- When you want a simpler workflow for your team
+- When you need to backport changes to the original repository
+
+### 81. How do you optimize Git performance?
+Optimizing Git performance:
+
+1. **Keep repositories small**:
+   - Use `.gitignore` to exclude unnecessary files
+   - Consider Git LFS for large files
+   - Archive old branches: `git archive --format=zip HEAD > project.zip`
+
+2. **Shallow clones** for large repositories:
+```bash
+# Clone with limited history
+git clone --depth=1 https://github.com/username/repo.git
+
+# Clone single branch
+git clone --single-branch --branch=main https://github.com/username/repo.git
+```
+
+3. **Use sparse checkout** for monorepos:
+```bash
+git clone --no-checkout https://github.com/username/repo.git
+cd repo
+git sparse-checkout set folder1 folder2
+git checkout main
+```
+
+4. **Regular maintenance**:
+```bash
+# Compress repository objects
+git gc
+
+# More aggressive optimization
+git gc --aggressive
+
+# Find unnecessary objects
+git prune
+
+# Verify repository integrity
+git fsck
+```
+
+5. **Optimize local workflow**:
+   - Use `git fetch` instead of `git pull` when appropriate
+   - Use partial clones: `git clone --filter=blob:none`
+   - Configure Git to not check file permissions: `git config core.fileMode false`
+
+6. **Configure Git for performance**:
+```bash
+# Increase buffer sizes
+git config --global core.packedGitLimit 512m
+git config --global core.packedGitWindowSize 512m
+git config --global pack.windowMemory 512m
+
+# Enable filesystem cache
+git config --global core.fscache true
+```
+
+### 82. Explain the difference between `git reset --soft`, `git reset --mixed`, and `git reset --hard`.
+All three commands move the HEAD and branch pointer to a specified commit, but they differ in how they update the staging area and working directory:
+
+**`git reset --soft`**:
+- Moves HEAD to the specified commit
+- Does NOT change staging area
+- Does NOT change working directory
+- All changes from reset commits appear staged and ready to commit
+- Use case: When you want to combine several commits into one
+
+```bash
+git reset --soft HEAD~3  # Move HEAD back 3 commits, keep changes staged
+git commit -m "Combined three commits"
+```
+
+**`git reset --mixed`** (default):
+- Moves HEAD to the specified commit
+- Updates staging area to match the specified commit
+- Does NOT change working directory
+- All changes from reset commits appear as unstaged modifications
+- Use case: When you want to reorganize changes into different commits
+
+```bash
+git reset HEAD~3        # Move HEAD back 3 commits, unstage changes
+git add first.js        # Stage specific files
+git commit -m "First logical change"
+git add second.js
+git commit -m "Second logical change"
+```
+
+**`git reset --hard`**:
+- Moves HEAD to the specified commit
+- Updates staging area to match the specified commit
+- Updates working directory to match the specified commit
+- All changes from reset commits are permanently discarded (DANGEROUS)
+- Use case: When you want to discard work and start over
+
+```bash
+git reset --hard HEAD~1  # Discard the last commit and all its changes
+# or
+git reset --hard origin/main  # Reset local branch to match remote
+```
+
+### 83. How do you recover a lost commit in Git?
+Several ways to recover lost commits:
+
+1. **Using git reflog** (most reliable):
+```bash
+# Show a log of HEAD movements
+git reflog
+
+# Found lost commit with hash abc1234
+git checkout abc1234
+# or
+git branch recovery-branch abc1234
+```
+
+2. **Find dangling commits**:
+```bash
+# List all objects not reachable from any ref
+git fsck --full --no-reflogs --unreachable --lost-found
+
+# Examine a dangling commit
+git show abc1234
+
+# Recover the commit
+git branch recovery-branch abc1234
+```
+
+3. **Using git cherry-pick** after finding the commit:
+```bash
+# After finding the lost commit hash
+git cherry-pick abc1234
+```
+
+4. **If accidentally reset with --hard**:
+```bash
+# Check reflog immediately
+git reflog
+git reset --hard HEAD@{1}  # Go back to state before the reset
+```
+
+5. **If lost commit was in a deleted branch**:
+```bash
+# Reflog still tracks it
+git reflog
+git checkout -b recovered-branch abc1234
+```
+
+Git typically keeps unreferenced objects for at least 30 days by default (configurable via `gc.pruneExpire)
+
+# AWS 
+
+### 84. What is AWS? What are its key services?
+AWS (Amazon Web Services) is a comprehensive cloud platform offering over 200 services from data centers globally.
+
+Key services:
+- **Compute**: EC2 (virtual servers), Lambda (serverless functions), ECS/EKS (containers)
+- **Storage**: S3 (object storage), EBS (block storage), EFS (file system)
+- **Database**: RDS (relational), DynamoDB (NoSQL), ElastiCache (in-memory)
+- **Networking**: VPC (virtual network), Route 53 (DNS), CloudFront (CDN)
+- **Security**: IAM (identity management), WAF (web application firewall), Shield (DDoS protection)
+- **DevOps**: CodePipeline, CodeBuild, CodeDeploy (CI/CD)
+- **Monitoring**: CloudWatch (metrics & logs), X-Ray (tracing)
+- **AI/ML**: SageMaker, Rekognition, Comprehend
+
+### 85. Describe your experience deploying web applications on AWS.
+When deploying web applications on AWS, a typical approach involves:
+
+1. **Architecture planning**:
+   - Designing scalable, fault-tolerant architecture
+   - Separating frontend and backend components
+   - Planning for security, monitoring, and backups
+
+2. **Implementation components**:
+   - Frontend: S3 for static hosting, CloudFront for CDN
+   - Backend: EC2 instances in auto-scaling groups or serverless with Lambda
+   - Database: RDS for relational or DynamoDB for NoSQL
+   - API Layer: API Gateway for serverless or Load Balancer with EC2
+
+3. **Deployment process**:
+   - Infrastructure as Code using CloudFormation or Terraform
+   - CI/CD pipeline with CodePipeline or GitHub Actions
+   - Blue-green deployments for zero downtime
+   - Automated testing before production promotion
+
+4. **Monitoring and maintenance**:
+   - CloudWatch dashboards and alerts
+   - Log analysis and performance monitoring
+   - Regular security scanning and updates
+   - Cost optimization reviews
+
+### 86. What are the advantages of using AWS?
+Advantages of using AWS:
+
+- **Scalability** - Easily scale resources up or down based on demand
+- **Pay-as-you-go pricing** - Only pay for what you use
+- **Global infrastructure** - Deploy applications closer to users worldwide
+- **Reliability** - High availability across multiple availability zones
+- **Security** - Comprehensive security tools and compliance certifications
+- **Managed services** - Reduced operational burden
+- **Integration** - Seamless connection between services
+- **Automation** - APIs for everything enable infrastructure as code
+- **Innovation** - Continuous release of new services and features
+- **Ecosystem** - Large marketplace of third-party tools and integrations
+
+### 87. How do you secure your applications on AWS?
+Securing applications on AWS involves multiple layers:
+
+1. **Identity and Access Management**:
+   - Use IAM roles and policies with least privilege principle
+   - Enable MFA for all IAM users
+   - Rotate access keys regularly
+   - Use AWS Organizations for multi-account strategy
+
+2. **Network Security**:
+   - Implement VPCs with private subnets
+   - Use security groups and network ACLs
+   - Configure VPN or Direct Connect for secure access
+   - Implement WAF for protection against common web exploits
+
+3. **Data Protection**:
+   - Encrypt data at rest using KMS or SSE
+   - Encrypt data in transit using TLS/SSL
+   - Implement S3 bucket policies and block public access
+   - Use Secrets Manager for credential management
+
+4. **Monitoring and Detection**:
+   - Enable CloudTrail for API activity monitoring
+   - Use GuardDuty for threat detection
+   - Configure Config for compliance monitoring
+   - Set up CloudWatch alarms for suspicious activities
+
+5. **Security Best Practices**:
+   - Regular security assessments with Inspector
+   - Patch management strategy
+   - Follow AWS Well-Architected Framework security pillar
+   - Implement DDoS protection with Shield
+
+### 88. How do you monitor the performance of your applications on AWS?
+Monitoring applications on AWS involves several services and practices:
+
+1. **CloudWatch** - Core monitoring service:
+   - **Metrics**: Track CPU, memory, disk, network utilization
+   - **Alarms**: Set thresholds and receive notifications
+   - **Logs**: Centralize and analyze application logs
+   - **Dashboards**: Create custom visualization dashboards
+
+2. **X-Ray** - Application tracing:
+   - Trace requests as they travel through the application
+   - Identify bottlenecks and latency issues
+   - Visualize service dependencies
+
+3. **CloudTrail** - API activity monitoring:
+   - Track who did what and when
+   - Detect unauthorized access attempts
+
+4. **AWS Config** - Resource configuration tracking:
+   - Monitor infrastructure changes
+   - Ensure compliance with best practices
+
+5. **Performance best practices**:
+   - Set up detailed monitoring on critical resources
+   - Use custom metrics for application-specific monitoring
+   - Implement automated remediation with EventBridge
+   - Regular performance testing
+
+### 89. What is EC2? How do you use it to launch virtual servers?
+EC2 (Elastic Compute Cloud) is AWS's service for resizable virtual servers in the cloud.
+
+Steps to launch an EC2 instance:
+1. **Choose an Amazon Machine Image (AMI)** - OS and pre-installed software
+2. **Select an instance type** - CPU, memory, storage, and networking capacity
+3. **Configure instance details**:
+   - Network (VPC) and subnet
+   - IAM role for AWS access
+   - User data for bootstrapping
+   - Shutdown behavior
+4. **Add storage** - Configure EBS volumes or instance store
+5. **Add tags** - Key-value pairs for organization
+6. **Configure security group** - Firewall rules for traffic control
+7. **Review and launch** - Create or select key pair for SSH access
+8. **Connect to the instance** - Via SSH, RDP, or Systems Manager
+
+Key EC2 concepts:
+- **AMI**: Template for root volume containing OS and applications
+- **Instance types**: Different hardware configurations
+- **Security groups**: Virtual firewalls controlling traffic
+- **Key pairs**: Authentication for instance access
+- **Elastic IP**: Static IP address for dynamic cloud computing
+- **Auto Scaling**: Automatically adjust capacity based on demand
+
+### 90. What are different EC2 instance types? How do you choose the right instance type for your application?
+EC2 instance families:
+
+1. **General Purpose (T, M)** - Balanced CPU, memory, networking
+   - **Use cases**: Web servers, small databases, development environments
+
+2. **Compute Optimized (C)** - High CPU performance
+   - **Use cases**: Batch processing, scientific modeling, game servers, high-performance web servers
+
+3. **Memory Optimized (R, X, z)** - Fast performance for memory-intensive workloads
+   - **Use cases**: In-memory databases, real-time big data analytics, large caches
+
+4. **Storage Optimized (D, I, H)** - High disk throughput and IOPS
+   - **Use cases**: Data warehousing, log processing, distributed file systems
+
+5. **Accelerated Computing (P, G, F)** - GPU or FPGA processing
+   - **Use cases**: Machine learning, video encoding, graphics processing
+
+Choosing the right instance type:
+1. **Analyze requirements**:
+   - CPU, memory, storage, and network needs
+   - Burstable vs. consistent performance
+   - Specialized hardware requirements (GPU, FPGA)
+
+2. **Consider workload patterns**:
+   - Steady-state vs. variable loads
+   - Batch processing vs. real-time responses
+
+3. **Test and measure**:
+   - Benchmark with different instance types
+   - Monitor performance metrics
+   - Use CloudWatch to identify bottlenecks
+
+4. **Cost optimization**:
+   - Reserved Instances for predictable workloads
+   - Spot Instances for flexible, non-critical workloads
+   - Right-sizing based on utilization metrics
+
+### 91. What are security groups in EC2? How do you use them to control network traffic?
+Security groups are virtual firewalls that control inbound and outbound traffic to EC2 instances.
+
+Key characteristics:
+- Act at the instance level (not subnet level like NACLs)
+- Support allow rules only (no explicit deny rules)
+- Stateful (return traffic automatically allowed)
+- Can reference other security groups, IP addresses, or CIDR blocks
+
+Configuring security groups:
+```
+Inbound Rules:
+- Type: HTTP (80)
+  Source: 0.0.0.0/0
+- Type: SSH (22)
+  Source: 10.0.0.0/16 (VPC CIDR)
+- Type: Custom TCP (3000)
+  Source: sg-1234abcd (Reference to another security group)
+
+Outbound Rules:
+- Type: All Traffic
+  Destination: 0.0.0.0/0
+```
+
+Best practices:
+- Follow principle of least privilege
+- Don't open SSH/RDP to the world (0.0.0.0/0)
+- Use security group references instead of IP addresses when possible
+- Create separate security groups for different functions
+- Regularly audit security group rules
+- Use Security Group IDs instead of names in references
+
+### 92. How do you use Elastic Load Balancing (ELB) with EC2?
+Elastic Load Balancing (ELB) distributes incoming traffic across multiple EC2 instances to improve availability and fault tolerance.
+
+Types of load balancers:
+1. **Application Load Balancer (ALB)** - HTTP/HTTPS traffic, path-based routing
+2. **Network Load Balancer (NLB)** - TCP/UDP traffic, extreme performance
+3. **Classic Load Balancer (CLB)** - Legacy option, basic load balancing
+
+Setting up ELB with EC2:
+1. **Create a load balancer**:
+   - Choose the type (ALB, NLB, CLB)
+   - Select VPC and subnets (multiple AZs for high availability)
+   - Configure security settings (HTTPS certificates)
+   - Configure security groups
+
+2. **Configure health checks**:
+   - Protocol (HTTP, HTTPS, TCP)
+   - Path (for HTTP/HTTPS)
+   - Success criteria
+   - Check intervals and thresholds
+
+3. **Register targets**:
+   - Create a target group
+   - Add EC2 instances or set up auto-scaling group
+   - Define routing rules
+
+4. **Configure listeners**:
+   - Port and protocol (80/HTTP, 443/HTTPS)
+   - Default actions and rules
+   - Content-based routing (ALB)
+
+Best practices:
+- Deploy across multiple AZs for high availability
+- Enable connection draining for graceful instance deregistration
+- Use SSL termination at the load balancer
+- Configure appropriate idle timeouts
+- Implement sticky sessions when needed
+
+### 93. What is S3? How do you use it to store and retrieve objects?
+Amazon S3 (Simple Storage Service) is an object storage service offering industry-leading scalability, availability, security, and performance.
+
+Key concepts:
+- **Buckets**: Containers for objects (similar to top-level directories)
+- **Objects**: Files and metadata stored in S3 (up to 5TB each)
+- **Keys**: Unique identifiers for objects within a bucket
+- **Regions**: Physical location where buckets are stored
+- **Storage classes**: Different tiers with varying costs and retrieval times
+
+Working with S3:
+1. **Creating a bucket**:
+```bash
+aws s3 mb s3://my-unique-bucket-name --region us-east-1
+```
+
+2. **Uploading objects**:
+```bash
+# CLI
+aws s3 cp local-file.txt s3://my-bucket/path/
+
+# SDK (JavaScript)
+const params = {
+  Bucket: 'my-bucket',
+  Key: 'path/file.txt',
+  Body: fileContent
+};
+s3Client.putObject(params).promise();
+```
+
+3. **Downloading objects**:
+```bash
+# CLI
+aws s3 cp s3://my-bucket/path/file.txt local-file.txt
+
+# SDK (JavaScript)
+const params = {
+  Bucket: 'my-bucket',
+  Key: 'path/file.txt'
+};
+const data = await s3Client.getObject(params).promise();
+```
+
+4. **Object URL patterns**:
+```
+https://bucket-name.s3.region.amazonaws.com/key-name
+https://s3.region.amazonaws.com/bucket-name/key-name
+```
+
+### 94. What are S3 buckets?
+S3 buckets are containers for objects stored in Amazon S3. They organize the Amazon S3 namespace at the highest level.
+
+Characteristics:
+- Names must be globally unique across all of AWS
+- Names must be 3-63 characters long
+- Names can contain lowercase letters, numbers, hyphens
+- Names cannot be formatted as IP addresses
+- Buckets are region-specific
+- Unlimited objects can be stored in a bucket
+- Default limit of 100 buckets per AWS account (can be increased)
+
+Creating and managing buckets:
+1. **Creation**:
+```bash
+aws s3 mb s3://bucket-name --region us-east-1
+```
+
+2. **Setting properties**:
+- Versioning: Track multiple versions of objects
+- Website hosting: Configure bucket for static website hosting
+- Event notifications: Trigger Lambda functions on object events
+- Lifecycle rules: Automatically transition or expire objects
+
+3. **Bucket policies**: JSON documents defining access permissions:
+```json
+{
+  "Version": "2012-10-17",
+  "Statement": [
+    {
+      "Effect": "Allow",
+      "Principal": "*",
+      "Action": "s3:GetObject",
+      "Resource": "arn:aws:s3:::bucket-name/*"
+    }
+  ]
+}
+```
+
+4. **Deletion**:
+```bash
+# Must delete all objects first
+aws s3 rm s3://bucket-name --recursive
+aws s3 rb s3://bucket-name
+```
+
+### 95. How do you control access to S3 objects?
+Multiple mechanisms to control S3 access:
+
+1. **IAM Policies** - User-based access control:
+```json
+{
+  "Version": "2012-10-17",
+  "Statement": [
+    {
+      "Effect": "Allow",
+      "Action": [
+        "s3:GetObject",
+        "s3:ListBucket"
+      ],
+      "Resource": [
+        "arn:aws:s3:::bucket-name",
+        "arn:aws:s3:::bucket-name/*"
+      ]
+    }
+  ]
+}
+```
+
+2. **Bucket Policies** - Resource-based access control:
+```json
+{
+  "Version": "2012-10-17",
+  "Statement": [
+    {
+      "Effect": "Allow",
+      "Principal": {
+        "AWS": "arn:aws:iam::123456789012:user/username"
+      },
+      "Action": "s3:GetObject",
+      "Resource": "arn:aws:s3:::bucket-name/*"
+    }
+  ]
+}
+```
+
+3. **Access Control Lists (ACLs)** - Object and bucket level permissions (legacy)
+
+4. **Presigned URLs** - Temporary access to objects:
+```javascript
+const params = {
+  Bucket: 'my-bucket',
+  Key: 'private/file.jpg',
+  Expires: 60 * 5 // 5 minutes
+};
+const signedUrl = s3.getSignedUrl('getObject', params);
+```
+
+5. **S3 Block Public Access** - Bucket-level settings to prevent public access
+
+6. **S3 Object Lock** - Prevent object deletion for a specific time period
+
+7. **S3 Access Points** - Named network endpoints with dedicated access policies
+
+Best practices:
+- Block public access by default
+- Use bucket policies for cross-account access
+- Use IAM roles for EC2 instances accessing S3
+- Enable server-side encryption
+- Use VPC endpoints for private access
+
+### 96. How do you use S3 for static website hosting?
+S3 can host static websites with HTML, CSS, JavaScript, images, and other client-side content.
+
+Setting up static website hosting:
+1. **Create a bucket** with a suitable name (e.g., `example.com`)
+
+2. **Enable static website hosting**:
+   - Console: Properties → Static website hosting → Enable
+   - CLI:
+     ```bash
+     aws s3 website s3://example.com/ --index-document index.html --error-document error.html
+     ```
+
+3. **Configure bucket policy** for public read access:
+```json
+{
+  "Version": "2012-10-17",
+  "Statement": [
+    {
+      "Effect": "Allow",
+      "Principal": "*",
+      "Action": "s3:GetObject",
+      "Resource": "arn:aws:s3:::example.com/*"
+    }
+  ]
+}
+```
+
+**94. What are S3 buckets?**
+S3 buckets are cloud storage containers in AWS that store objects (files). Think of them like folders in the cloud where you can store any type of file. Each bucket has a globally unique name and can store an unlimited number of objects, with individual files up to 5TB in size. S3 offers high durability and availability for storing data like images, videos, backups, and application files.
+
+**95. How do you control access to S3 objects?**
+You can control S3 access through:
+- Bucket policies: JSON documents defining permissions at the bucket level
+- IAM policies: Control which users/roles can access buckets
+- Access Control Lists (ACLs): Fine-grained control for individual objects
+- Presigned URLs: Temporary access to specific objects
+- Block Public Access settings: Prevent accidental public exposure
+- Bucket encryption: Protect data with server-side encryption
+
+**96. How do you use S3 for static website hosting?**
+To host a static website on S3:
+1. Create an S3 bucket with a name matching your domain
+2. Upload your website files (HTML, CSS, JS, images)
+3. Enable "Static website hosting" in bucket properties
+4. Set your index document (e.g., index.html) and error document
+5. Make the content publicly accessible using a bucket policy
+6. Get the website endpoint URL from the properties tab
+7. Optionally, connect it to a custom domain using Route 53 and CloudFront
+
+### AWS Lambda
+
+**97. What is AWS Lambda? What are its use cases?**
+AWS Lambda is a serverless computing service that runs code in response to events without requiring server management. You pay only for the compute time consumed.
+
+Common use cases:
+- API backends (with API Gateway)
+- Real-time file processing (when uploads happen to S3)
+- Scheduled tasks (cron jobs)
+- Processing streams of data (with Kinesis)
+- Automated backups and notifications
+- IoT backends
+- Chatbots and voice assistants
+
+**98. How do you deploy and execute code using Lambda?**
+To deploy and execute Lambda code:
+1. Write your function in a supported language (Node.js, Python, Java, etc.)
+2. Package your code with dependencies into a deployment package
+3. Create a Lambda function in the AWS console, CLI, or with IaC tools
+4. Upload your code or point to an S3 bucket
+5. Configure the function (memory, timeout, environment variables)
+6. Set up trigger(s) to execute your function (API Gateway, S3, CloudWatch Events, etc.)
+7. Add necessary IAM permissions for your function
+8. Test and monitor execution using CloudWatch Logs
+
+**99. What are Lambda functions?**
+Lambda functions are individual units of code that run in response to events. Each function contains:
+- Handler: The entry point for execution (e.g., index.handler)
+- Runtime environment: Language interpreter (Node.js, Python, etc.)
+- Configuration: Memory allocation, timeout settings, environment variables
+- Execution context: Maintains state between invocations for efficiency
+- Permissions: IAM role defining what AWS resources the function can access
+
+Lambda functions are stateless but can connect to databases or other storage for persistent data.
+
+**100. How do you trigger Lambda functions?**
+Lambda functions can be triggered by:
+- AWS services (S3, DynamoDB, SQS, SNS)
+- API Gateway (HTTP/REST endpoints)
+- CloudWatch Events/EventBridge (scheduled or event-pattern based)
+- Kinesis (stream processing)
+- Direct invocation via AWS SDK
+- AWS IoT
+- Alexa Skills
+- CloudFront edge functions
+- Custom application events
+
+Each trigger type provides specific event data to the Lambda function.
+
+### RDS (Relational Database Service)
+
+**101. What is RDS? What are its advantages?**
+RDS is a managed relational database service from AWS that makes it easy to set up, operate, and scale a relational database in the cloud.
+
+Advantages:
+- Automated backups and point-in-time recovery
+- Automatic software patching
+- Hardware provisioning handled by AWS
+- Multi-AZ deployment for high availability
+- Read replicas for improved performance
+- Monitoring and metrics via CloudWatch
+- Easy scaling (vertical and horizontal)
+- Encryption at rest and in transit
+- Managed database parameter groups
+
+**102. What are the different database engines supported by RDS?**
+RDS supports these database engines:
+- MySQL
+- PostgreSQL
+- MariaDB
+- Oracle
+- Microsoft SQL Server
+- Amazon Aurora (MySQL and PostgreSQL compatible)
+
+Each engine has different versions, features, and pricing options.
+
+**103. How do you connect to an RDS instance from your application?**
+To connect to an RDS instance:
+1. Create the RDS instance in the correct VPC/subnet
+2. Configure security groups to allow traffic on the database port
+3. Get connection details (endpoint, port, database name, username, password)
+4. Use a database driver/connector in your application code
+5. Create a connection string with the details
+6. Use connection pooling for efficient connections
+7. Store credentials securely (using Secrets Manager or Parameter Store)
+8. Handle connection errors and retries in your code
+
+Sample Node.js connection with MySQL:
+```javascript
+const mysql = require('mysql2');
+const connection = mysql.createConnection({
+  host: 'your-rds-endpoint.rds.amazonaws.com',
+  user: 'username',
+  password: 'password',
+  database: 'database_name'
+});
+connection.connect();
+```
+
+**104. How do you back up and restore RDS databases?**
+Backing up RDS databases:
+- Automated backups: Configure retention period (0-35 days)
+- Manual snapshots: Create on-demand, stored until deleted
+- Enable Multi-AZ for synchronous replication
+
+Restoring:
+1. From automated backup: Select point-in-time recovery
+2. From snapshot: Select the snapshot and create a new DB instance
+3. Restored databases have new endpoints, update application connection strings
+4. Verify data integrity after restore
+5. For partial restores, you may need to export/import specific data
+
+### CloudFront and CDN
+
+**105. What is CloudFront? How does it improve website performance?**
+CloudFront is AWS's Content Delivery Network (CDN) that speeds up distribution of static and dynamic content by caching copies at edge locations worldwide.
+
+It improves performance by:
+- Reducing latency by serving content from locations closer to users
+- Decreasing load on origin servers through caching
+- Handling traffic spikes with scalable edge infrastructure
+- Optimizing connections with HTTP/2 and HTTPS
+- Reducing bandwidth costs with compression
+- Protecting against certain types of attacks with security features
+- Enabling real-time logs for monitoring and analytics
+
+**106. How do you configure CloudFront to cache content?**
+To configure CloudFront caching:
+1. Create a distribution with your origin (S3, ALB, custom HTTP server)
+2. Configure cache behaviors for different URL patterns
+3. Set TTL (Time To Live) values for content expiration
+4. Define cache keys (what request attributes determine a cache hit)
+5. Set up origin headers to control caching
+6. Configure invalidation paths for updates
+7. Specify compression settings
+8. Implement cache headers on your origin (Cache-Control, ETag)
+9. Use versioned file names for static assets
+
+### IAM (Identity and Access Management)
+
+**107. What is IAM? How do you use it to manage users and permissions on AWS?**
+IAM is AWS's service for securely controlling access to AWS services and resources. It helps you manage who can do what in your AWS account.
+
+To manage users and permissions:
+1. Create IAM users for individuals or services
+2. Organize users into groups for easier management
+3. Assign policies that define permissions
+4. Follow the principle of least privilege (grant only necessary permissions)
+5. Use managed policies for common scenarios
+6. Create custom policies for specific needs
+7. Enable MFA for enhanced security
+8. Rotate access keys regularly
+9. Use IAM Analyzer to identify unused permissions
+10. Review access activity with CloudTrail
+
+**108. What are IAM roles?**
+IAM roles are AWS identities with specific permissions that can be assumed by entities that need temporary access:
+- Services like EC2, Lambda can use roles to access other AWS services
+- External users through federation can assume roles
+- Roles provide temporary credentials with automatic rotation
+- No passwords or long-term access keys to manage
+- Can be used across accounts for secure cross-account access
+- Defined by trust policies (who can assume the role) and permission policies (what they can do)
+
+## Web Development Security
+
+**109. How do you ensure API security in Node.js?**
+To secure a Node.js API:
+1. Use HTTPS for all communications
+2. Implement proper authentication (JWT, OAuth)
+3. Add rate limiting to prevent abuse
+4. Validate all input data
+5. Implement proper error handling without exposing details
+6. Use Helmet.js to set security headers
+7. Implement CORS correctly
+8. Use parameterized queries for database operations
+9. Keep dependencies updated
+10. Use a web application firewall (WAF)
+11. Log and monitor suspicious activities
+
+**110. What are CSRF and XSS attacks? How do you prevent them?**
+**CSRF (Cross-Site Request Forgery):** Tricks users into submitting unwanted requests.
+Prevention:
+- Anti-CSRF tokens in forms
+- SameSite cookie attribute
+- Check Origin/Referer headers
+- Require explicit actions for sensitive operations
+
+**XSS (Cross-Site Scripting):** Injects malicious scripts into web pages.
+Prevention:
+- Escape/encode user input
+- Use Content-Security-Policy headers
+- Implement HttpOnly cookies
+- Sanitize HTML and JavaScript
+- Use frameworks with built-in protection
+- Validate input on both client and server
+
+**111. How do you implement role-based access control (RBAC)?**
+Implementing RBAC:
+1. Define roles (admin, user, guest, etc.)
+2. Assign permissions to each role
+3. Assign users to appropriate roles
+4. Store role information in a database
+5. Check permissions on each protected route/resource
+6. Use middleware to verify access rights
+
+Example in Express.js:
+```javascript
+function checkRole(role) {
+  return (req, res, next) => {
+    if (!req.user) {
+      return res.status(401).send('Unauthorized');
+    }
+    if (req.user.role !== role) {
+      return res.status(403).send('Forbidden');
+    }
+    next();
+  }
+}
+
+// Usage
+app.get('/admin-dashboard', checkRole('admin'), (req, res) => {
+  // Only admins can access
+});
+```
+
+**112. What are JWT tokens, and how do they work?**
+JWT (JSON Web Tokens) are compact, self-contained tokens for securely transmitting information between parties.
+
+How they work:
+1. User logs in with credentials
+2. Server validates and creates a JWT with a payload (user data, permissions)
+3. Token is signed using a secret key or private key
+4. Token is sent to client and stored (localStorage, cookies)
+5. Client includes token in subsequent requests (Authorization header)
+6. Server verifies signature and extracts user info
+7. Server grants access based on token contents
+
+JWTs consist of three parts: header, payload, and signature, separated by dots.
+
+**113. What is CORS, and how do you handle it in Express.js?**
+CORS (Cross-Origin Resource Sharing) is a security feature that restricts web pages from making requests to domains different from the one that served the page.
+
+Handling CORS in Express:
+```javascript
+// Simple CORS for all routes
+const cors = require('cors');
+app.use(cors());
+
+// Configuring specific options
+app.use(cors({
+  origin: 'https://yourdomain.com',  // Allow only specific origin
+  methods: ['GET', 'POST'],          // Allow specific methods
+  allowedHeaders: ['Content-Type', 'Authorization'],
+  credentials: true                  // Allow cookies
+}));
+
+// For single route
+app.get('/api/data', cors(), (req, res) => {
+  res.json({ data: 'Here is your data' });
+});
+```
+
+## Real-time and Advanced Frontend
+
+**114. How does WebSockets work in a real-time application?**
+WebSockets provide full-duplex communication channels over a single TCP connection, enabling real-time data transfer between client and server.
+
+Implementation:
+1. Client establishes connection via handshake (HTTP upgrade)
+2. Connection stays open for bi-directional communication
+3. Both client and server can send messages anytime
+4. Messages are sent in frames (binary or text)
+5. No need for repeated HTTP requests
+
+Example with Socket.io in Node.js:
+```javascript
+// Server
+const io = require('socket.io')(server);
+io.on('connection', (socket) => {
+  console.log('User connected');
+  
+  socket.on('chat message', (msg) => {
+    io.emit('chat message', msg); // Broadcast to all clients
+  });
+  
+  socket.on('disconnect', () => {
+    console.log('User disconnected');
+  });
+});
+
+// Client
+const socket = io();
+socket.emit('chat message', 'Hello!');
+socket.on('chat message', (msg) => {
+  console.log('New message:', msg);
+});
+```
+
+**115. How do you optimize images in a React application?**
+Image optimization in React:
+1. Use appropriate formats (WebP, AVIF for modern browsers)
+2. Compress images before importing
+3. Implement lazy loading
+4. Use responsive images with srcset
+5. Consider image CDNs like Cloudinary or Imgix
+6. Use image components like Next.js Image or react-responsive-image
+7. Apply proper sizing (don't use larger images than needed)
+8. Use CSS for simple decorative images
+
+Example with lazy loading:
+```jsx
+import { LazyLoadImage } from 'react-lazy-load-image-component';
+
+function Product({ product }) {
+  return (
+    <div className="product">
+      <LazyLoadImage
+        src={product.imageUrl}
+        alt={product.name}
+        width={300}
+        height={200}
+        effect="blur"
+      />
+      <h2>{product.name}</h2>
+    </div>
+  );
+}
+```
+
+**116. How does caching improve performance?**
+Caching improves performance by:
+- Reducing server load by storing copies of resources
+- Decreasing latency by serving content from closer/faster storage
+- Minimizing database queries by caching results
+- Reducing bandwidth usage by reusing downloaded resources
+- Speeding up page loads with browser cache
+
+Implementation strategies:
+1. Browser caching with proper HTTP headers
+2. CDN caching for static assets
+3. Application-level caching (Redis, Memcached)
+4. Database query caching
+5. API response caching with proper invalidation
+6. Service worker caching for offline support
+
+**117. What are web workers in JavaScript?**
+Web Workers are JavaScript scripts that run in the background, separate from the main browser thread:
+- Enable true multi-threading in JavaScript
+- Handle CPU-intensive tasks without freezing the UI
+- Cannot directly access the DOM, window or parent objects
+- Communicate via messaging (postMessage API)
+- Types include dedicated workers, shared workers, and service workers
+
+Example:
+```javascript
+// Main thread
+const worker = new Worker('worker.js');
+worker.postMessage({ data: complexData });
+worker.onmessage = function(e) {
+  console.log('Result:', e.data);
+};
+
+// worker.js
+self.onmessage = function(e) {
+  const result = performComplexCalculation(e.data.data);
+  self.postMessage(result);
+};
+```
+
+**118. What is lazy loading in React?**
+Lazy loading in React is a technique to defer loading components until they're needed, improving initial load time:
+
+```jsx
+// Instead of:
+// import HeavyComponent from './HeavyComponent';
+
+// Use:
+import React, { Suspense, lazy } from 'react';
+
+const HeavyComponent = lazy(() => import('./HeavyComponent'));
+
+function App() {
+  return (
+    <div>
+      <Suspense fallback={<div>Loading...</div>}>
+        <HeavyComponent />
+      </Suspense>
+    </div>
+  );
+}
+```
+
+Benefits:
+- Reduces initial bundle size
+- Improves page load speed
+- Components load only when needed (e.g., route changes)
+- Works well with React Router for route-based code splitting
+
+## Backend and Database
+
+**119. How do you handle large datasets efficiently in MongoDB?**
+For large MongoDB datasets:
+1. Use proper indexing for query patterns
+2. Implement pagination with skip/limit or cursor-based approach
+3. Project only needed fields (don't return everything)
+4. Use aggregation pipeline for complex operations
+
+**119. How do you handle large datasets efficiently in MongoDB?** (continued)
+5. Use MongoDB's aggregation framework for data processing
+6. Implement sharding for horizontal scaling
+7. Consider read replicas for distributing read operations
+8. Use capped collections for high-throughput logging
+9. Implement TTL indexes for auto-expiration of data
+10. Batch operations when possible instead of many small operations
+
+Example of pagination in Node.js:
+```javascript
+// Cursor-based pagination (more efficient than skip/limit)
+const pageSize = 100;
+let lastId = null;
+
+// First page
+const firstPage = await db.collection('products')
+  .find({})
+  .sort({ _id: 1 })
+  .limit(pageSize)
+  .toArray();
+
+if (firstPage.length > 0) {
+  lastId = firstPage[firstPage.length - 1]._id;
+}
+
+// Subsequent pages
+const nextPage = await db.collection('products')
+  .find({ _id: { $gt: lastId } })
+  .sort({ _id: 1 })
+  .limit(pageSize)
+  .toArray();
+```
+
+**120. How do you use Redux with React?**
+Using Redux with React:
+1. Set up store with reducers and initial state
+2. Connect React app using Provider
+3. Create actions to define possible state changes
+4. Build reducers to handle state updates
+5. Connect components using hooks or connect()
+6. Dispatch actions to update state
+
+Basic setup example:
+```javascript
+// Store setup
+import { createStore } from 'redux';
+import { Provider } from 'react-redux';
+
+function counterReducer(state = { count: 0 }, action) {
+  switch (action.type) {
+    case 'INCREMENT':
+      return { count: state.count + 1 };
+    case 'DECREMENT':
+      return { count: state.count - 1 };
+    default:
+      return state;
+  }
+}
+
+const store = createStore(counterReducer);
+
+// App component
+function App() {
+  return (
+    <Provider store={store}>
+      <Counter />
+    </Provider>
+  );
+}
+
+// Using hooks in component
+import { useSelector, useDispatch } from 'react-redux';
+
+function Counter() {
+  const count = useSelector(state => state.count);
+  const dispatch = useDispatch();
+  
+  return (
+    <div>
+      <p>Count: {count}</p>
+      <button onClick={() => dispatch({ type: 'INCREMENT' })}>+</button>
+      <button onClick={() => dispatch({ type: 'DECREMENT' })}>-</button>
+    </div>
+  );
+}
+```
+
+**121. What is the difference between controlled and uncontrolled components in React?**
+Controlled Components:
+- Form values controlled by React state
+- React is the "single source of truth"
+- Component state updates on every input change
+- More predictable, but requires more code
+- Better for forms with validation and dynamic behavior
+
+```jsx
+function ControlledForm() {
+  const [name, setName] = useState('');
+  
+  const handleSubmit = (e) => {
+    e.preventDefault();
+    console.log('Name submitted:', name);
+  };
+  
+  return (
+    <form onSubmit={handleSubmit}>
+      <input 
+        type="text" 
+        value={name} 
+        onChange={(e) => setName(e.target.value)} 
+      />
+      <button type="submit">Submit</button>
+    </form>
+  );
+}
+```
+
+Uncontrolled Components:
+- DOM handles form data internally
+- Uses refs to access values when needed
+- Less code, but harder to perform validation
+- Good for simple forms or third-party integrations
+
+```jsx
+function UncontrolledForm() {
+  const nameRef = useRef();
+  
+  const handleSubmit = (e) => {
+    e.preventDefault();
+    console.log('Name submitted:', nameRef.current.value);
+  };
+  
+  return (
+    <form onSubmit={handleSubmit}>
+      <input type="text" ref={nameRef} defaultValue="" />
+      <button type="submit">Submit</button>
+    </form>
+  );
+}
+```
+
+**122. How do you prevent SQL injection in Node.js?**
+Preventing SQL injection:
+1. Use parameterized queries/prepared statements
+2. Never concatenate user input directly into SQL strings
+3. Use ORM libraries like Sequelize or TypeORM
+4. Validate and sanitize all user inputs
+5. Implement least privilege database users
+6. Escape special characters if direct concatenation is unavoidable
+
+Example with parameterized queries (using mysql2):
+```javascript
+// UNSAFE - DON'T DO THIS
+app.get('/users', (req, res) => {
+  const userId = req.query.id;
+  const query = `SELECT * FROM users WHERE id = ${userId}`; // VULNERABLE!
+  connection.query(query, (err, results) => {
+    res.json(results);
+  });
+});
+
+// SAFE - DO THIS
+app.get('/users', (req, res) => {
+  const userId = req.query.id;
+  const query = 'SELECT * FROM users WHERE id = ?'; // Parameterized
+  connection.query(query, [userId], (err, results) => {
+    res.json(results);
+  });
+});
+```
+
+**123. How do you implement logging in a Node.js app?**
+Implementing logging in Node.js:
+1. Use a logging library like Winston, Pino, or Bunyan
+2. Set up different log levels (error, warn, info, debug)
+3. Configure multiple transports (console, file, database)
+4. Include contextual data (request IDs, user IDs)
+5. Format logs appropriately (JSON for machine parsing)
+6. Implement log rotation for file logs
+7. Use centralized logging for production
+
+Example with Winston:
+```javascript
+const winston = require('winston');
+const express = require('express');
+const app = express();
+
+// Configure logger
+const logger = winston.createLogger({
+  level: process.env.LOG_LEVEL || 'info',
+  format: winston.format.combine(
+    winston.format.timestamp(),
+    winston.format.json(),
+  ),
+  defaultMeta: { service: 'user-service' },
+  transports: [
+    new winston.transports.Console(),
+    new winston.transports.File({ filename: 'error.log', level: 'error' }),
+    new winston.transports.File({ filename: 'combined.log' }),
+  ],
+});
+
+// Middleware to log requests
+app.use((req, res, next) => {
+  const start = Date.now();
+  res.on('finish', () => {
+    logger.info({
+      method: req.method,
+      url: req.url,
+      status: res.statusCode,
+      responseTime: Date.now() - start,
+      ip: req.ip
+    });
+  });
+  next();
+});
+
+// Error handler
+app.use((err, req, res, next) => {
+  logger.error({
+    message: err.message,
+    stack: err.stack,
+    method: req.method,
+    url: req.url
+  });
+  res.status(500).send('Something went wrong');
+});
+```
+
+**124. What is GraphQL, and how is it different from REST?**
+GraphQL is a query language and runtime for APIs that allows clients to request exactly the data they need.
+
+Differences from REST:
+- Single endpoint vs multiple endpoints in REST
+- Client specifies exact data shape vs server determines response structure
+- Reduces over-fetching and under-fetching of data
+- Strong typing system for API schema
+- Introspection capabilities for documentation
+- Built-in tooling for validation and exploration
+
+Example GraphQL query:
+```graphql
+query {
+  user(id: "123") {
+    name
+    email
+    posts(last: 3) {
+      title
+      comments {
+        text
+      }
+    }
+  }
+}
+```
+
+Equivalent REST might require multiple endpoints:
+- GET /users/123
+- GET /users/123/posts?limit=3
+- GET /posts/:id/comments for each post
+
+## Architecture and Performance
+
+**125. What are the pros and cons of microservices architecture?**
+Pros of microservices:
+- Independent deployment of services
+- Technology diversity (different languages/frameworks per service)
+- Better scalability of individual components
+- Easier to understand smaller codebases
+- More resilient (single service failure doesn't take down entire system)
+- Team autonomy and parallel development
+
+Cons of microservices:
+- Increased complexity in deployment and operations
+- Network latency between services
+- More difficult debugging across services
+- Data consistency challenges
+- More complex testing
+- Potential duplication of code
+- Higher infrastructure costs
+
+**126. How do you optimize database performance?**
+Database optimization techniques:
+1. Create proper indexes for common queries
+2. Normalize/denormalize schema appropriately for workload
+3. Use connection pooling
+4. Write efficient queries (avoid SELECT *)
+5. Implement query caching
+6. Use stored procedures for complex operations
+7. Configure proper server settings (memory, cache)
+8. Partition large tables
+9. Implement read replicas for read-heavy workloads
+10. Regular maintenance (vacuum, reindex)
+11. Monitor slow queries and optimize
+12. Consider database-specific optimization techniques
+
+**127. What are observables in JavaScript?**
+Observables are objects that represent a collection of future values or events:
+- Part of Reactive Programming pattern (RxJS library)
+- Similar to Promises but handle multiple values over time
+- Support operations like map, filter, reduce
+- Can be canceled, unlike Promises
+- Work with streaming data and event-based systems
+
+Example with RxJS:
+```javascript
+import { fromEvent } from 'rxjs';
+import { debounceTime, map } from 'rxjs/operators';
+
+// Create an observable from input events
+const input = document.querySelector('input');
+const inputObservable = fromEvent(input, 'input').pipe(
+  debounceTime(300), // Wait for 300ms pause in events
+  map(event => event.target.value)
+);
+
+// Subscribe to the observable
+const subscription = inputObservable.subscribe(value => {
+  console.log('Search term:', value);
+  // Make API call with search term
+});
+
+// Later, unsubscribe when done
+subscription.unsubscribe();
+```
+
+**128. How do you automate deployment using GitHub Actions?**
+Automating deployment with GitHub Actions:
+1. Create a workflow file (.github/workflows/deploy.yml)
+2. Define triggers (push to main, pull request, etc.)
+3. Set up build environment and dependencies
+4. Configure authentication for deployment target
+5. Define build steps
+6. Add deployment commands
+7. Configure notifications and reports
+
+Example workflow for Node.js app deploying to AWS:
+
+```yaml
+name: Deploy to AWS
+
+on:
+  push:
+    branches: [ main ]
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    
+    steps:
+    - uses: actions/checkout@v2
+    
+    - name: Set up Node.js
+      uses: actions/setup-node@v2
+      with:
+        node-version: '16'
+        
+    - name: Install dependencies
+      run: npm ci
+      
+    - name: Run tests
+      run: npm test
+      
+    - name: Build application
+      run: npm run build
+      
+    - name: Configure AWS credentials
+      uses: aws-actions/configure-aws-credentials@v1
+      with:
+        aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+        aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+        aws-region: us-east-1
+        
+    - name: Deploy to S3
+      run: |
+        aws s3 sync ./build s3://my-app-bucket --delete
+        
+    - name: Invalidate CloudFront
+      run: |
+        aws cloudfront create-invalidation --distribution-id ${{ secrets.CLOUDFRONT_DISTRIBUTION_ID }} --paths "/*"
+        
+    - name: Notify deployment status
+      if: always()
+      uses: actions/github-script@v5
+      with:
+        github-token: ${{ secrets.GITHUB_TOKEN }}
+        script: |
+          const { owner, repo } = context.repo;
+          github.issues.createComment({
+            owner,
+            repo,
+            issue_number: context.issue.number,
+            body: `Deployment ${context.job} ${context.status}!`
+          });
+```
+
+This deployment workflow checks out code, sets up Node.js, installs dependencies, runs tests, builds the application, configures AWS credentials using repository secrets, deploys to S3, invalidates CloudFront cache, and adds a notification comment.
